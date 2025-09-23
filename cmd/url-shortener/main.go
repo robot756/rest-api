@@ -21,7 +21,6 @@ func main() {
 
 	// TODO: init logger: slog
 	log := setupLogger(cfg.Env)
-
 	log.Info("starting url-shortener")
 	log.Debug("debug message are enabled")
 
