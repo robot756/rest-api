@@ -9,7 +9,6 @@ import (
 	"os"
 	"url-shortener/internal/config"
 	"url-shortener/internal/http-server/handlers/url/save"
-	mwLogger "url-shortener/internal/http-server/middleware/logger"
 	"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/storage/sqlite"
 )
@@ -37,12 +36,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// TODO: init router: chi
+	//// TODO: init router: chi
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
 	router.Use(middleware.RealIP)
-	router.Use(mwLogger.New(log))
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
@@ -61,6 +59,8 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		log.Error("failed to start server")
 	}
+
+	log.Error("failed to start server")
 
 	// TODO: run server: Docker
 

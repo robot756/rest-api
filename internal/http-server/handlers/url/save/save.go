@@ -38,12 +38,10 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 		)
 
 		var req Request
-
 		err := render.DecodeJSON(r.Body, &req)
 		if err != nil {
 			log.Error("failed to decode request body", err)
 			render.JSON(w, r, resp.Error("failed to decode request"))
-
 			return
 		}
 
@@ -51,11 +49,8 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 
 		if err := validator.New().Struct(req); err != nil {
 			validateErr := err.(validator.ValidationErrors)
-
 			log.Error("failed to decode request body", err)
-
 			render.JSON(w, r, resp.ValidationError(validateErr))
-
 			return
 		}
 
@@ -67,22 +62,17 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 		id, err := urlSaver.SaveURL(req.URL, alias)
 		if errors.Is(err, storage.ErrURLExists) {
 			log.Info("url already exists", slog.String("url", req.URL))
-
 			render.JSON(w, r, resp.Error("url already exists"))
-
 			return
 		}
 
 		if err != nil {
 			log.Error("failed to add url", err)
-
-			render.JSON(w, r, resp.Error())
-
+			render.JSON(w, r, resp.Error("url already exists"))
 			return
 		}
 
 		log.Info("url added", slog.Int64("id", id))
-
 		render.JSON(w, r, Response{
 			Response: resp.OK(),
 			Alias:    alias,
