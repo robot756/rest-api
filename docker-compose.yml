@@ -1,6 +1,9 @@
+version: '3.8'
+
 services:
   app:
-    image: post-service:local
+    build:
+      dockerfile: Dockerfile
     container_name: ps-app
     depends_on:
       - postgresql
