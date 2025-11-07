@@ -14,7 +14,6 @@ func New(storagePath string) (*Storage, error) {
 	const op = "storage.postgres.New"
 
 	db, err := pgx.Connect(context.Background(), storagePath)
-
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

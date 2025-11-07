@@ -51,9 +51,9 @@ func main() {
 	srv := &http.Server{
 		Addr:         cfg.Address,
 		Handler:      router,
-		ReadTimeout:  cfg.HTTPServer.Timeout,
-		WriteTimeout: cfg.HTTPServer.Timeout,
-		IdleTimeout:  cfg.HTTPServer.IDLETimeout,
+		ReadTimeout:  cfg.Timeout,
+		WriteTimeout: cfg.Timeout,
+		IdleTimeout:  cfg.IDLETimeout,
 	}
 
 	if err := srv.ListenAndServe(); err != nil {
