@@ -50,8 +50,7 @@ func main() {
 		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
 			cfg.User: cfg.Password,
 		}))
-
-		router.Post("/url", save.New(log, storage))
+		r.Post("/", save.New(log, storage))
 	})
 
 	log.Info("starting server", slog.String("address", cfg.Address))
@@ -67,9 +66,6 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		log.Error("failed to start server")
 	}
-
-	// TODO: run server: Docker
-
 }
 
 func setupLogger(env string) *slog.Logger {
