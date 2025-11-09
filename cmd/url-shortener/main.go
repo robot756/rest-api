@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"url-shortener/internal/config"
-	"url-shortener/internal/http-server/handlers/url/save"
 	mwLogger "url-shortener/internal/http-server/middleware/logger"
 	"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/storage/sqlite"
@@ -31,7 +30,7 @@ func main() {
 	log.Debug("debug message are enabled")
 
 	// TODO: init storage: sqlite
-	storage, err := sqlite.New(cfg.StoragePath)
+	_, err := sqlite.New(cfg.UrlExample)
 	if err != nil {
 		log.Error("error creating storage", err)
 		os.Exit(1)
@@ -46,12 +45,12 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	router.Route("/url", func(r chi.Router) {
-		r.Use(middleware.BasicAuth("url-shortener", map[string]string{
-			cfg.User: cfg.Password,
-		}))
-		r.Post("/", save.New(log, storage))
-	})
+	//router.Route("/url", func(r chi.Router) {
+	//	r.Use(middleware.BasicAuth("url-shortener", map[string]string{
+	//		cfg.User: cfg.Password,
+	//	}))
+	//	r.Post("/", save.New(log, storage))
+	//})
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 

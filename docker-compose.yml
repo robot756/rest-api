@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      dockerfile: Dockerfile
+    container_name: ps-app
+    ports:
+      - "8082:8082"
