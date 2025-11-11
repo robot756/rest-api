@@ -3,6 +3,7 @@ package sqlite
 import (
 	"context"
 	"fmt"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -34,26 +35,22 @@ func New(connString string) (*Storage, error) {
 	return &Storage{db: conn}, nil
 }
 
-//func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
-//	const op = "storage.sqlite.SaveURL"
-//
-//	stmt, err := s.db.Prepare("INSERT INTO url(url, alias) VALUES(?, ?)")
-//	if err != nil {
-//		return 0, fmt.Errorf("%s: %w", op, err)
-//	}
-//
-//	res, err := stmt.Exec(urlToSave, alias)
-//	if err != nil {
-//		return 0, fmt.Errorf("%s: %w", op, err, "alias already exist")
-//	}
-//
-//	id, err := res.LastInsertId()
-//	if err != nil {
-//		return 0, fmt.Errorf("%s: failed to get last insert id: %w", op, err)
-//	}
-//
-//	return id, nil
-//}
+func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
+	const op = "storage.postgres.SaveURL"
+
+	var id int64
+	err := s.db.QueryRow(
+		context.Background(),
+		"INSERT INTO url(url, alias) VALUES($1, $2) RETURNING id",
+		urlToSave, alias,
+	).Scan(&id)
+
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return id, nil
+}
 
 //func (s *Storage) GetURL(alias string) (string, error) {
 //	const op = "storage.sqlite.GetURL"

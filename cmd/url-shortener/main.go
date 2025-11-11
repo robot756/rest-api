@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
 	"net/http"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/http-server/handlers/url/save"
 	mwLogger "url-shortener/internal/http-server/middleware/logger"
 	"url-shortener/internal/lib/logger/handlers/slogpretty"
 	"url-shortener/internal/storage/sqlite"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 const (
@@ -29,8 +31,8 @@ func main() {
 	log.Info("starting url-shortener")
 	log.Debug("debug message are enabled")
 
-	// TODO: init storage: sqlite
-	_, err := sqlite.New(cfg.UrlExample)
+	// TODO: init storage: postgres
+	storage, err := sqlite.New(cfg.UrlExample)
 	if err != nil {
 		log.Error("error creating storage", err)
 		os.Exit(1)
@@ -45,12 +47,7 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	//router.Route("/url", func(r chi.Router) {
-	//	r.Use(middleware.BasicAuth("url-shortener", map[string]string{
-	//		cfg.User: cfg.Password,
-	//	}))
-	//	r.Post("/", save.New(log, storage))
-	//})
+	router.Post("/url", save.New(log, storage))
 
 	log.Info("starting server", slog.String("address", cfg.Address))
 
