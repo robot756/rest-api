@@ -2,6 +2,7 @@ package delete
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	resp "url-shortener/internal/lib/api/response"
@@ -11,6 +12,11 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 )
+
+type Response struct {
+	resp.Response
+	Alias string `json:"alias,omitempty"`
+}
 
 type URLDeleter interface {
 	DeleteURL(alias string) error
@@ -37,6 +43,8 @@ func New(log *slog.Logger, urlDeleter URLDeleter) http.HandlerFunc {
 
 		err := urlDeleter.DeleteURL(alias)
 
+		fmt.Printf("DeleteURL returned: %v, type: %T\n", err, err)
+
 		if errors.Is(err, storage.ErrURLNotFound) {
 			log.Info("url not found", "alias", alias)
 			render.JSON(w, r, resp.Error("not found"))
@@ -49,7 +57,10 @@ func New(log *slog.Logger, urlDeleter URLDeleter) http.HandlerFunc {
 			return
 		}
 
-		log.Info("url deleted successfully", slog.String("alias", alias))
+		render.JSON(w, r, Response{
+			Response: resp.OK(),
+			Alias:    alias,
+		})
 
 	}
 }
