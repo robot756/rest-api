@@ -52,44 +52,35 @@ func (s *Storage) SaveURL(urlToSave string, alias string) (int64, error) {
 	return id, nil
 }
 
-//func (s *Storage) GetURL(alias string) (string, error) {
-//	const op = "storage.sqlite.GetURL"
-//
-//	stmt, err := s.db.Prepare("SELECT url FROM url WHERE alias=?")
-//	if err != nil {
-//		return "", fmt.Errorf("failed to prepate stmt %s: %w", err)
-//	}
-//
-//	var url string
-//	err = stmt.QueryRow(alias).Scan(&url)
-//	if err != nil {
-//		return "", fmt.Errorf("%s: alias %s not found", op, alias)
-//	}
-//
-//	return url, nil
-//}
-//
-//func (s *Storage) DeleteURL(alias string) error {
-//	const op = "storage.sqllite.delete"
-//
-//	stmt, err := s.db.Prepare("DELETE FROM url WHERE alias=?")
-//	if err != nil {
-//		return fmt.Errorf("%s: %w", op, err)
-//	}
-//
-//	res, err := stmt.Exec(alias)
-//	if err != nil {
-//		return fmt.Errorf("%s: %w", op, err)
-//	}
-//
-//	rowsAffected, err := res.RowsAffected()
-//	if err != nil {
-//		return fmt.Errorf("%s: rows is not found", op, alias)
-//	}
-//
-//	if rowsAffected == 0 {
-//		return fmt.Errorf("%s: alias %s: not found", op, alias)
-//	}
-//
-//	return nil
-//}
+func (s *Storage) GetURL(alias string) (string, error) {
+	const op = "storage.postgres.GetURL"
+
+	var url string
+
+	err := s.db.QueryRow(context.Background(),
+		"SELECT url FROM url WHERE alias=$1",
+		alias,
+	).Scan(&url)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return "", fmt.Errorf("%s: alias '%s' not found", op, alias)
+		}
+		return "", fmt.Errorf("%s: failed to execute query: %w", op, err)
+	}
+
+	return url, nil
+}
+
+func (s *Storage) DeleteURL(alias string) error {
+	const op = "storage.postgres.delete"
+
+	err := s.db.QueryRow(context.Background(),
+		"DELETE FROM url WHERE alias=$1",
+		alias)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
